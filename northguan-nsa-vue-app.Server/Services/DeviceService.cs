@@ -662,26 +662,28 @@ namespace northguan_nsa_vue_app.Server.Services
                             var crowdDevice = await _context.CrowdDevices.FindAsync(id);
                             if (crowdDevice != null)
                             {
-                                var crowdRecords = _context.CrowdRecords.Where(r => r.DeviceSerial == crowdDevice.Serial);
-                                _context.CrowdRecords.RemoveRange(crowdRecords);
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "DELETE FROM CrowdRecords WHERE DeviceSerial = {0}", crowdDevice.Serial);
                                 _context.CrowdDevices.Remove(crowdDevice);
                             }
                             break;
 
                         case "parking":
                             var parkingDevice = await _context.ParkingDevices.FindAsync(id);
-                            if (parkingDevice != null) {
-                                var parkingRecords = _context.ParkingRecords.Where(r => r.DeviceSerial == parkingDevice.Serial);
-                                _context.ParkingRecords.RemoveRange(parkingRecords);
+                            if (parkingDevice != null)
+                            {
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "DELETE FROM ParkingRecords WHERE DeviceSerial = {0}", parkingDevice.Serial);
                                 _context.ParkingDevices.Remove(parkingDevice);
                             }
                             break;
 
                         case "traffic":
                             var trafficDevice = await _context.TrafficDevices.FindAsync(id);
-                            if (trafficDevice != null) {
-                                var trafficRecords = _context.TrafficRecords.Where(r => r.DeviceSerial == trafficDevice.Serial);
-                                _context.TrafficRecords.RemoveRange(trafficRecords);
+                            if (trafficDevice != null)
+                            {
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "DELETE FROM TrafficRecords WHERE DeviceSerial = {0}", trafficDevice.Serial);
                                 _context.TrafficDevices.Remove(trafficDevice);
                             }
                             break;
@@ -690,8 +692,8 @@ namespace northguan_nsa_vue_app.Server.Services
                             var fenceDevice = await _context.FenceDevices.FindAsync(id);
                             if (fenceDevice != null)
                             {
-                                var fenceRecords = _context.FenceRecords.Where(r => r.DeviceSerial == fenceDevice.Serial);
-                                _context.FenceRecords.RemoveRange(fenceRecords);
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "DELETE FROM FenceRecords WHERE DeviceSerial = {0}", fenceDevice.Serial);
                                 _context.FenceDevices.Remove(fenceDevice);
                             }
                             break;
@@ -700,8 +702,8 @@ namespace northguan_nsa_vue_app.Server.Services
                             var hrDevice = await _context.HighResolutionDevices.FindAsync(id);
                             if (hrDevice != null)
                             {
-                                var hrRecords = _context.HighResolutionRecords.Where(r => r.DeviceSerial == hrDevice.Serial);
-                                _context.HighResolutionRecords.RemoveRange(hrRecords);
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "DELETE FROM HighResolutionRecords WHERE DeviceSerial = {0}", hrDevice.Serial);
                                 _context.HighResolutionDevices.Remove(hrDevice);
                             }
                             break;
@@ -712,6 +714,11 @@ namespace northguan_nsa_vue_app.Server.Services
 
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // 資料已被其他請求刪除，視為成功
+                    await transaction.RollbackAsync();
                 }
                 catch
                 {
