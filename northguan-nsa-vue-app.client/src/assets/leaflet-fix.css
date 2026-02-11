@@ -1,0 +1,58 @@
+/* Leaflet 地圖樣式修復 */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* 自定義標記樣式 */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* 彈出框樣式 */
+.leaflet-popup-content-wrapper {
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+}
+
+.leaflet-popup-tip {
+  background: white;
+}
+
+/* 控制項樣式 */
+.leaflet-control-zoom {
+  border-radius: 0.375rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.leaflet-control-zoom a {
+  border-radius: 0;
+  border: none;
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 0.375rem;
+  font-size: 11px;
+  padding: 2px 5px;
+}
+
+/* 圖例樣式 */
+.info.legend {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* 確保地圖容器有正確的高度 */
+#map {
+  min-height: 384px; /* h-96 = 24rem = 384px */
+}

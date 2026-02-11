@@ -1,0 +1,41 @@
+{
+  "recommendations": [
+    // .NET Development
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.vscode-dotnet-runtime",
+    
+    // Vue.js Development
+    "Vue.volar",
+    "Vue.vscode-typescript-vue-plugin",
+    
+    // JavaScript/TypeScript
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    
+    // General Development
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+    "ms-vscode.powershell",
+    
+    // Git
+    "eamodio.gitlens",
+    
+    // Docker (for deployment)
+    "ms-azuretools.vscode-docker",
+    
+    // Database
+    "ms-mssql.mssql",
+    
+    // Useful utilities
+    "christian-kohler.path-intellisense",
+    "formulahendry.auto-rename-tag",
+    "ms-vscode.vscode-typescript-next",
+    "streetsidesoftware.code-spell-checker"
+  ],
+  "unwantedRecommendations": [
+    "ms-vscode.vscode-typescript",
+    "hookyqr.beautify"
+  ]
+}

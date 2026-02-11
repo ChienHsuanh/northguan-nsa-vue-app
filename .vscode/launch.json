@@ -1,0 +1,156 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Core Launch (Development)",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/northguan-nsa-vue-app.Server/bin/Debug/net8.0/northguan-nsa-vue-app.Server.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/northguan-nsa-vue-app.Server",
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "internalConsoleOptions": "openOnSessionStart",
+      "justMyCode": false,
+      "requireExactSource": false,
+      "enableStepFiltering": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:7289;http://localhost:5114"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      },
+      "launchBrowser": {
+        "enabled": true,
+        "args": "${auto-detect-url}",
+        "windows": {
+          "command": "cmd.exe",
+          "args": "/C start ${auto-detect-url}"
+        },
+        "osx": {
+          "command": "open"
+        },
+        "linux": {
+          "command": "xdg-open"
+        }
+      }
+    },
+    {
+      "name": ".NET Core Launch (Production)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "clean-then-build",
+      "program": "${workspaceFolder}/northguan-nsa-vue-app.Server/bin/Debug/net8.0/northguan-nsa-vue-app.Server.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/northguan-nsa-vue-app.Server",
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "ASPNETCORE_URLS": "http://localhost:7289;http://localhost:5114"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      },
+      "launchBrowser": {
+        "enabled": true,
+        "args": "${auto-detect-url}",
+        "windows": {
+          "command": "cmd.exe",
+          "args": "/C start ${auto-detect-url}"
+        },
+        "osx": {
+          "command": "open"
+        },
+        "linux": {
+          "command": "xdg-open"
+        }
+      }
+    },
+    {
+      "name": ".NET Core Debug with Watch",
+      "type": "coreclr",
+      "request": "attach",
+      "processName": "northguan-nsa-vue-app.Server",
+      "justMyCode": false,
+      "requireExactSource": false,
+      "enableStepFiltering": false,
+      "preLaunchTask": "watch-debug"
+    },
+    {
+      "name": ".NET Core Attach to Process",
+      "type": "coreclr",
+      "request": "attach",
+      "justMyCode": false,
+      "requireExactSource": false,
+      "enableStepFiltering": false,
+      "suppressJITOptimizations": true
+    },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach"
+    },
+    {
+      "name": "Vue.js Development Server",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/northguan-nsa-vue-app.client",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "restart": true,
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    {
+      "name": "Debug Vue.js in Chrome",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:13343/",
+      "webRoot": "${workspaceFolder}/northguan-nsa-vue-app.client",
+      "preLaunchTask": "npm run dev (client)"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch Full Stack (Development)",
+      "configurations": [
+        ".NET Core Launch (Development)",
+        "Debug Vue.js in Chrome"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "Full Stack",
+        "order": 1
+      }
+    },
+    {
+      "name": "Launch Full Stack Debug with Watch (Development)",
+      "configurations": [
+        ".NET Core Debug with Watch",
+        "Debug Vue.js in Chrome"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "Full Stack",
+        "order": 2
+      }
+    },
+    {
+      "name": "Launch Full Stack (Production)",
+      "configurations": [".NET Core Launch (Production)"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "Full Stack",
+        "order": 3
+      }
+    }
+  ]
+}

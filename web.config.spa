@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <location path="." inheritInChildApplications="false">
+    <system.webServer>
+      <!-- ASP.NET Core Module Configuration -->
+      <handlers>
+        <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
+      </handlers>
+
+      <!-- ASP.NET Core Module Settings -->
+      <aspNetCore processPath="dotnet"
+                  arguments=".\northguan-nsa-vue-app.Server.dll"
+                  stdoutLogEnabled="true"
+                  stdoutLogFile=".\logs\stdout"
+                  hostingModel="inprocess">
+        <environmentVariables>
+          <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
+        </environmentVariables>
+      </aspNetCore>
+
+      <!-- Static Files Configuration for SPA -->
+      <staticContent>
+        <!-- Set proper MIME types for modern web files -->
+        <remove fileExtension=".js" />
+        <mimeMap fileExtension=".js" mimeType="application/javascript" />
+        <remove fileExtension=".json" />
+        <mimeMap fileExtension=".json" mimeType="application/json" />
+        <remove fileExtension=".woff" />
+        <mimeMap fileExtension=".woff" mimeType="font/woff" />
+        <remove fileExtension=".woff2" />
+        <mimeMap fileExtension=".woff2" mimeType="font/woff2" />
+        <remove fileExtension=".svg" />
+        <mimeMap fileExtension=".svg" mimeType="image/svg+xml" />
+        <remove fileExtension=".map" />
+        <mimeMap fileExtension=".map" mimeType="application/json" />
+      </staticContent>
+
+      <!-- HTTP Response Headers for Security and Performance -->
+      <httpProtocol>
+        <customHeaders>
+          <!-- Security Headers -->
+          <add name="X-Content-Type-Options" value="nosniff" />
+          <add name="X-Frame-Options" value="DENY" />
+          <add name="X-XSS-Protection" value="1; mode=block" />
+          <add name="Referrer-Policy" value="strict-origin-when-cross-origin" />
+
+          <!-- Cache Control for Static Assets -->
+          <add name="Cache-Control" value="public, max-age=31536000" />
+        </customHeaders>
+      </httpProtocol>
+
+      <!-- URL Rewrite Rules for SPA Routing -->
+      <rewrite>
+        <rules>
+          <!-- Rule 1: Redirect HTTP to HTTPS (optional, enable if using HTTPS) -->
+          <!--
+          <rule name="Redirect to HTTPS" stopProcessing="true">
+            <match url=".*" />
+            <conditions>
+              <add input="{HTTPS}" pattern="off" ignoreCase="true" />
+              <add input="{HTTP_HOST}" pattern="localhost" negate="true" />
+            </conditions>
+            <action type="Redirect" url="https://{HTTP_HOST}/{R:0}" redirectType="Permanent" />
+          </rule>
+          -->
+
+          <!-- Rule 2: Handle API routes - let ASP.NET Core handle them -->
+          <rule name="API Routes" stopProcessing="true">
+            <match url="^api/.*" />
+            <action type="None" />
+          </rule>
+
+          <!-- Rule 3: Handle static files - let them pass through -->
+          <rule name="Static Files" stopProcessing="true">
+            <match url="^.*\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map|json)$" />
+            <action type="None" />
+          </rule>
+
+          <!-- Rule 4: Handle health check endpoints -->
+          <rule name="Health Checks" stopProcessing="true">
+            <match url="^health.*" />
+            <action type="None" />
+          </rule>
+
+          <!-- Rule 5: Handle Swagger/OpenAPI endpoints (for development/staging) -->
+          <rule name="Swagger" stopProcessing="true">
+            <match url="^(swagger|openapi).*" />
+            <action type="None" />
+          </rule>
+
+          <!-- Rule 6: SPA Fallback - redirect all other routes to index.html for Vue Router -->
+          <rule name="SPA Fallback" stopProcessing="true">
+            <match url=".*" />
+            <conditions logicalGrouping="MatchAll">
+              <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+              <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+            </conditions>
+            <action type="Rewrite" url="/index.html" />
+          </rule>
+        </rules>
+
+        <outboundRules>
+            <rule name="Set No-Cache for API" preCondition="IsApiRequest">
+                <match serverVariable="RESPONSE_Cache-Control" pattern=".*" />
+                <action type="Rewrite" value="no-store, no-cache" />
+            </rule>
+
+            <rule name="Set Cache for Static Files" preCondition="IsStaticFile">
+                <match serverVariable="RESPONSE_Cache-Control" pattern=".*" />
+                <action type="Rewrite" value="public, max-age=31536000" />
+            </rule>
+
+            <preConditions>
+                <preCondition name="IsApiRequest">
+                    <add input="{URL}" pattern="^/api/.*" />
+                </preCondition>
+                <preCondition name="IsStaticFile">
+                    <add input="{URL}" pattern="^.*\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map|json)$" />
+                </preCondition>
+            </preConditions>
+        </outboundRules>
+      </rewrite>
+
+      <!-- Compression for better performance -->
+      <urlCompression doStaticCompression="true" doDynamicCompression="true" />
+
+      <!-- Default Documents -->
+      <defaultDocument>
+        <files>
+          <clear />
+          <add value="index.html" />
+        </files>
+      </defaultDocument>
+
+      <!-- Error Pages (optional) -->
+      <httpErrors errorMode="Custom" defaultResponseMode="ExecuteURL">
+        <remove statusCode="404" subStatusCode="-1" />
+        <error statusCode="404" path="/index.html" responseMode="ExecuteURL" />
+      </httpErrors>
+
+    </system.webServer>
+  </location>
+
+  <!-- System.Web Configuration (if needed for legacy compatibility) -->
+  <system.web>
+    <compilation tempDirectory="App_Data/Temp/" />
+  </system.web>
+
+</configuration>

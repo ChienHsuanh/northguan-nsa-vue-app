@@ -1,0 +1,119 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>northguan_nsa_vue_app.Server</RootNamespace>
+    <SpaRoot>..\northguan-nsa-vue-app.client</SpaRoot>
+    <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
+    <SpaProxyServerUrl>https://localhost:13343</SpaProxyServerUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.19" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
+      <Version>8.*-*</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.7" />
+    <PackageReference Include="NPOI" Version="2.7.4" />
+    <PackageReference Include="NSwag.AspNetCore" Version="14.5.0" />
+    <PackageReference Include="NSwag.MSBuild" Version="14.5.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Paseto.Core" Version="1.4.1" />
+    <PackageReference Include="Polly" Version="8.4.2" />
+    <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.10" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\northguan-nsa-vue-app.client\northguan-nsa-vue-app.client.esproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <Target Name="NSwag" AfterTargets="PostBuildEvent"
+    Condition=" '$(Configuration)' == 'Debug' And '$(SkipNSwag)' != 'True' ">
+    <Exec ConsoleToMSBuild="true" ContinueOnError="true" WorkingDirectory="$(ProjectDir)"
+      EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development"
+      Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)">
+      <Output TaskParameter="ExitCode" PropertyName="NSwagExitCode" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="NSwagOutput" />
+    </Exec>
+
+    <Message Text="$(NSwagOutput)" Condition="'$(NSwagExitCode)' == '0'" Importance="low" />
+    <Error Text="$(NSwagOutput)" Condition="'$(NSwagExitCode)' != '0'" />
+  </Target>
+
+  <!-- Frontend Build and Copy Target -->
+  <Target Name="BuildFrontend" BeforeTargets="Publish"
+    Condition="'$(PublishProtocol)' != 'Docker' AND '$(DOTNET_RUNNING_IN_CONTAINER)' != 'true'">
+    <PropertyGroup>
+      <FrontendProjectDir>$(MSBuildProjectDirectory)\..\northguan-nsa-vue-app.client</FrontendProjectDir>
+      <FrontendDistDir>$(FrontendProjectDir)\dist</FrontendDistDir>
+      <PublishWwwrootDir>$(PublishDir)wwwroot</PublishWwwrootDir>
+    </PropertyGroup>
+
+    <Message Text="Building frontend project..." Importance="high" />
+
+    <!-- Check if node_modules exists, if not run npm install -->
+    <Exec Command="npm install" WorkingDirectory="$(FrontendProjectDir)"
+      Condition="!Exists('$(FrontendProjectDir)\node_modules')" ContinueOnError="false" />
+
+    <!-- Build frontend -->
+    <Exec Command="npm run build" WorkingDirectory="$(FrontendProjectDir)" ContinueOnError="false" />
+
+    <!-- Ensure wwwroot directory exists -->
+    <MakeDir Directories="$(PublishWwwrootDir)" Condition="!Exists('$(PublishWwwrootDir)')" />
+
+    <!-- Copy frontend dist to wwwroot -->
+    <ItemGroup>
+      <FrontendFiles Include="$(FrontendDistDir)\**\*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(FrontendFiles)"
+      DestinationFiles="@(FrontendFiles->'$(PublishWwwrootDir)\%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true" />
+
+    <Message Text="Frontend build completed and copied to wwwroot" Importance="high" />
+  </Target>
+
+  <!-- Clean frontend build target -->
+  <Target Name="CleanFrontend" BeforeTargets="Clean"
+    Condition="'$(DOTNET_RUNNING_IN_CONTAINER)' != 'true'">
+    <PropertyGroup>
+      <FrontendProjectDir>$(MSBuildProjectDirectory)\..\northguan-nsa-vue-app.client</FrontendProjectDir>
+      <FrontendDistDir>$(FrontendProjectDir)\dist</FrontendDistDir>
+    </PropertyGroup>
+
+    <RemoveDir Directories="$(FrontendDistDir)" Condition="Exists('$(FrontendDistDir)')" />
+    <RemoveDir Directories="$(MSBuildProjectDirectory)\wwwroot"
+      Condition="Exists('$(MSBuildProjectDirectory)\wwwroot')" />
+  </Target>
+
+</Project>

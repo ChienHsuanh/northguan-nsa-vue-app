@@ -1,0 +1,1 @@
+export { default as EnhancedPagination } from './EnhancedPagination.vue'

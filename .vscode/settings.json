@@ -1,0 +1,71 @@
+{
+  "dotnet.defaultSolution": "northguan-nsa-vue-app.sln",
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bin": true,
+    "**/obj": true,
+    "**/dist": true,
+    "**/.nuxt": true,
+    "**/.output": true
+  },
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.suggest.autoImports": true,
+  "vue.codeActions.enabled": true,
+  "vue.complete.casing.tags": "kebab",
+  "vue.complete.casing.props": "camel",
+  "eslint.workingDirectories": ["northguan-nsa-vue-app.client"],
+  "eslint.validate": ["javascript", "typescript", "vue"],
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  },
+  "omnisharp.enableRoslynAnalyzers": true,
+  "omnisharp.enableEditorConfigSupport": true,
+  "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+  "dotnet.inlayHints.enableInlayHintsForParameters": true,
+  "dotnet.inlayHints.enableInlayHintsForLiteralParameters": true,
+  "dotnet.inlayHints.enableInlayHintsForIndexerParameters": true,
+  "dotnet.inlayHints.enableInlayHintsForObjectCreationParameters": true,
+  "dotnet.inlayHints.enableInlayHintsForOtherParameters": true,
+  "dotnet.inlayHints.suppressInlayHintsForParametersThatDifferOnlyBySuffix": true,
+  "dotnet.inlayHints.suppressInlayHintsForParametersThatMatchMethodIntent": true,
+  "dotnet.inlayHints.suppressInlayHintsForParametersThatMatchArgumentName": true,
+  "terminal.integrated.env.windows": {
+    "ASPNETCORE_ENVIRONMENT": "Development"
+  },
+  "terminal.integrated.env.osx": {
+    "ASPNETCORE_ENVIRONMENT": "Development"
+  },
+  "terminal.integrated.env.linux": {
+    "ASPNETCORE_ENVIRONMENT": "Development"
+  },
+  "debug.allowBreakpointsEverywhere": true,
+  "debug.showInlineBreakpointCandidates": true,
+  "coreclr.enableDebugging": true,
+  "omnisharp.useModernNet": true,
+  "dotnet.server.useOmnisharp": false,
+  "dotnet.formatting.organizeImportsOnFormat": true
+}
