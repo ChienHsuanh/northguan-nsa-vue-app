@@ -299,6 +299,265 @@
           </FormField>
         </div>
 
+        <!-- 攝影機設定（所有類型共用） -->
+        <div v-if="selectedType" class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-900 border-b pb-2">攝影機設定</h3>
+
+          <div class="grid grid-cols-2 gap-4">
+            <FormField v-slot="{ componentField }" name="cameraType">
+              <FormItem>
+                <FormLabel>攝影機類型</FormLabel>
+                <FormControl>
+                  <Select v-bind="componentField" @update:model-value="handleCameraTypeChange">
+                    <SelectTrigger>
+                      <SelectValue placeholder="- 請選擇攝影機類型 -" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fixed">固定式</SelectItem>
+                      <SelectItem value="ptz">球機 (PTZ)</SelectItem>
+                      <SelectItem value="panoramic">全景聯動</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+
+            <FormField v-if="selectedCameraType === 'ptz'" v-slot="{ componentField }" name="cameraBrand">
+              <FormItem>
+                <FormLabel>廠牌</FormLabel>
+                <FormControl>
+                  <Select v-bind="componentField" @update:model-value="handleCameraBrandChange">
+                    <SelectTrigger>
+                      <SelectValue placeholder="- 請選擇廠牌 -" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="axis">Axis</SelectItem>
+                      <SelectItem value="bosch">Bosch</SelectItem>
+                      <SelectItem value="onvif">ONVIF</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+          </div>
+
+          <FormField v-if="selectedCameraType" v-slot="{ componentField }" name="camRtspUrl">
+            <FormItem>
+              <FormLabel>RTSP URL <span class="text-red-500">*</span></FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  placeholder="rtsp://admin:password@192.168.1.1/stream"
+                  v-bind="componentField"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <FormField v-if="selectedCameraType" v-slot="{ componentField }" name="camOutputSize">
+            <FormItem>
+              <FormLabel>輸出解析度</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  placeholder="1280x720"
+                  v-bind="componentField"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <!-- Axis 專屬欄位 -->
+          <div v-if="selectedCameraType === 'ptz' && selectedCameraBrand === 'axis'" class="space-y-4 p-4 bg-gray-50 rounded-md">
+            <h4 class="text-sm font-medium text-gray-700">Axis VAPIX 設定</h4>
+            <FormField v-slot="{ componentField }" name="axisBaseUrl">
+              <FormItem>
+                <FormLabel>Axis Base URL</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="http://61.219.173.73" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+            <div class="grid grid-cols-2 gap-4">
+              <FormField v-slot="{ componentField }" name="axisUser">
+                <FormItem>
+                  <FormLabel>帳號</FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="root" v-bind="componentField" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              </FormField>
+              <FormField v-slot="{ componentField }" name="axisPassword">
+                <FormItem>
+                  <FormLabel>密碼</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="密碼" v-bind="componentField" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              </FormField>
+            </div>
+            <FormField v-slot="{ componentField }" name="axisCamera">
+              <FormItem>
+                <FormLabel>Camera 編號</FormLabel>
+                <FormControl>
+                  <Input type="number" min="1" placeholder="1" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+          </div>
+
+          <!-- Bosch 專屬欄位 -->
+          <div v-if="selectedCameraType === 'ptz' && selectedCameraBrand === 'bosch'" class="space-y-4 p-4 bg-gray-50 rounded-md">
+            <h4 class="text-sm font-medium text-gray-700">Bosch 設定</h4>
+            <FormField v-slot="{ componentField }" name="boschBaseUrl">
+              <FormItem>
+                <FormLabel>Bosch Base URL</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="http://61.222.158.251:10562" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+            <div class="grid grid-cols-2 gap-4">
+              <FormField v-slot="{ componentField }" name="boschUser">
+                <FormItem>
+                  <FormLabel>帳號</FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="service" v-bind="componentField" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              </FormField>
+              <FormField v-slot="{ componentField }" name="boschPassword">
+                <FormItem>
+                  <FormLabel>密碼</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="密碼" v-bind="componentField" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              </FormField>
+            </div>
+          </div>
+
+          <!-- ONVIF 專屬欄位 -->
+          <div v-if="selectedCameraType === 'ptz' && selectedCameraBrand === 'onvif'" class="space-y-4 p-4 bg-gray-50 rounded-md">
+            <h4 class="text-sm font-medium text-gray-700">ONVIF 設定</h4>
+            <FormField v-slot="{ componentField }" name="onvifUrl">
+              <FormItem>
+                <FormLabel>ONVIF URL</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="http://192.168.1.1/onvif/device_service" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+            <div class="grid grid-cols-2 gap-4">
+              <FormField v-slot="{ componentField }" name="onvifUser">
+                <FormItem>
+                  <FormLabel>帳號</FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="admin" v-bind="componentField" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              </FormField>
+              <FormField v-slot="{ componentField }" name="onvifPassword">
+                <FormItem>
+                  <FormLabel>密碼</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="密碼" v-bind="componentField" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              </FormField>
+            </div>
+            <FormField v-slot="{ componentField }" name="ptzHFov">
+              <FormItem>
+                <FormLabel>PTZ 水平視角 (度)</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.1" placeholder="60" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+          </div>
+
+          <!-- 全景聯動專屬欄位 -->
+          <div v-if="selectedCameraType === 'panoramic'" class="space-y-4 p-4 bg-gray-50 rounded-md">
+            <h4 class="text-sm font-medium text-gray-700">全景聯動設定</h4>
+            <FormField v-slot="{ componentField }" name="ptzTarget">
+              <FormItem>
+                <FormLabel>聯動球機名稱</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="例如: ptz1" v-bind="componentField" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+            <div class="grid grid-cols-3 gap-4">
+              <FormField v-slot="{ componentField }" name="panPerPixelX">
+                <FormItem>
+                  <FormLabel>PanPerPixelX</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.00001" placeholder="0.15703" v-bind="componentField" />
+                  </FormControl>
+                </FormItem>
+              </FormField>
+              <FormField v-slot="{ componentField }" name="panPerPixelY">
+                <FormItem>
+                  <FormLabel>PanPerPixelY</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.00001" placeholder="0" v-bind="componentField" />
+                  </FormControl>
+                </FormItem>
+              </FormField>
+              <FormField v-slot="{ componentField }" name="panOffset">
+                <FormItem>
+                  <FormLabel>PanOffset</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.1" placeholder="94.0" v-bind="componentField" />
+                  </FormControl>
+                </FormItem>
+              </FormField>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+              <FormField v-slot="{ componentField }" name="tiltPerPixelX">
+                <FormItem>
+                  <FormLabel>TiltPerPixelX</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.00001" placeholder="0" v-bind="componentField" />
+                  </FormControl>
+                </FormItem>
+              </FormField>
+              <FormField v-slot="{ componentField }" name="tiltPerPixelY">
+                <FormItem>
+                  <FormLabel>TiltPerPixelY</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.00001" placeholder="-0.1148" v-bind="componentField" />
+                  </FormControl>
+                </FormItem>
+              </FormField>
+              <FormField v-slot="{ componentField }" name="tiltOffset">
+                <FormItem>
+                  <FormLabel>TiltOffset</FormLabel>
+                  <FormControl>
+                    <Input type="number" step="0.1" placeholder="20.0" v-bind="componentField" />
+                  </FormControl>
+                </FormItem>
+              </FormField>
+            </div>
+          </div>
+        </div>
+
         <!-- 錯誤訊息顯示區域 -->
         <div v-if="submitError" class="p-4 bg-red-50 border border-red-200 rounded-md">
           <div class="flex">
@@ -390,6 +649,8 @@ const toast = useToast()
 
 // State
 const selectedType = ref<string>('')
+const selectedCameraType = ref<string>('')
+const selectedCameraBrand = ref<string>('')
 const submitError = ref<string>('')
 const isSubmitting = ref<boolean>(false)
 
@@ -410,7 +671,30 @@ const deviceSchema = toTypedSchema(z.object({
   city: z.string().optional(),
   eTagNumber: z.string().optional(),
   observingTimeStart: z.string().optional(),
-  observingTimeEnd: z.string().optional()
+  observingTimeEnd: z.string().optional(),
+  // Camera config fields
+  cameraType: z.string().optional(),
+  cameraBrand: z.string().optional(),
+  camRtspUrl: z.string().optional(),
+  camOutputSize: z.string().optional(),
+  axisBaseUrl: z.string().optional(),
+  axisUser: z.string().optional(),
+  axisPassword: z.string().optional(),
+  axisCamera: z.coerce.number().optional(),
+  boschBaseUrl: z.string().optional(),
+  boschUser: z.string().optional(),
+  boschPassword: z.string().optional(),
+  onvifUrl: z.string().optional(),
+  onvifUser: z.string().optional(),
+  onvifPassword: z.string().optional(),
+  ptzHFov: z.coerce.number().optional(),
+  ptzTarget: z.string().optional(),
+  panPerPixelX: z.coerce.number().optional(),
+  panPerPixelY: z.coerce.number().optional(),
+  panOffset: z.coerce.number().optional(),
+  tiltPerPixelX: z.coerce.number().optional(),
+  tiltPerPixelY: z.coerce.number().optional(),
+  tiltOffset: z.coerce.number().optional()
 }))
 
 // Use VeeValidate form
@@ -420,6 +704,66 @@ const { handleSubmit, setValues, setFieldError } = useForm({
 
 const handleTypeChange = (type: string) => {
   selectedType.value = type
+  selectedCameraType.value = ''
+  selectedCameraBrand.value = ''
+}
+
+const handleCameraTypeChange = (type: string | number | boolean | null) => {
+  if (typeof type === 'string') {
+    selectedCameraType.value = type
+    selectedCameraBrand.value = ''
+  }
+}
+
+const handleCameraBrandChange = (brand: string | number | boolean | null) => {
+  if (typeof brand === 'string') {
+    selectedCameraBrand.value = brand
+  }
+}
+
+const parseCameraConfig = (configJson: string | null | undefined): Record<string, any> => {
+  if (!configJson) return {}
+  try {
+    return JSON.parse(configJson)
+  } catch {
+    return {}
+  }
+}
+
+const buildCameraConfigJson = (values: any): string | undefined => {
+  if (!values.cameraType || !values.camRtspUrl) return undefined
+
+  const config: Record<string, any> = {
+    CameraType: values.cameraType === 'ptz' ? `ptz_${values.cameraBrand || 'onvif'}` : values.cameraType,
+    RtspUrl: values.camRtspUrl,
+    OutputSize: values.camOutputSize || '1280x720'
+  }
+
+  if (values.cameraType === 'ptz' && values.cameraBrand === 'axis') {
+    config.AxisBaseUrl = values.axisBaseUrl || ''
+    config.AxisUser = values.axisUser || ''
+    config.AxisPassword = values.axisPassword || ''
+    config.AxisCamera = values.axisCamera || 1
+  } else if (values.cameraType === 'ptz' && values.cameraBrand === 'bosch') {
+    config.BoschBaseUrl = values.boschBaseUrl || ''
+    config.BoschUser = values.boschUser || ''
+    config.BoschPassword = values.boschPassword || ''
+  } else if (values.cameraType === 'ptz' && values.cameraBrand === 'onvif') {
+    config.OnvifUrl = values.onvifUrl || ''
+    config.OnvifUser = values.onvifUser || ''
+    config.OnvifPassword = values.onvifPassword || ''
+    config.PtzHFov = values.ptzHFov || 60
+  } else if (values.cameraType === 'panoramic') {
+    config.PtzTarget = values.ptzTarget || ''
+    config.PanPerPixelX = values.panPerPixelX || 0
+    config.PanPerPixelY = values.panPerPixelY || 0
+    config.PanOffset = values.panOffset || 0
+    config.TiltPerPixelX = values.tiltPerPixelX || 0
+    config.TiltPerPixelY = values.tiltPerPixelY || 0
+    config.TiltOffset = values.tiltOffset || 0
+  }
+
+  return JSON.stringify(config)
 }
 
 // Watch for device changes and populate form
@@ -428,6 +772,24 @@ watch(() => [props.device, props.isOpen], ([device, isOpen]) => {
     selectedType.value = device.type || ''
     // 清除錯誤訊息
     submitError.value = ''
+
+    // 解析攝影機設定
+    const camConfig = parseCameraConfig(device.cameraConfig)
+    let camType = ''
+    let camBrand = ''
+    if (camConfig.CameraType) {
+      if (camConfig.CameraType === 'fixed') {
+        camType = 'fixed'
+      } else if (camConfig.CameraType === 'panoramic') {
+        camType = 'panoramic'
+      } else if (camConfig.CameraType?.startsWith('ptz_')) {
+        camType = 'ptz'
+        camBrand = camConfig.CameraType.replace('ptz_', '')
+      }
+    }
+    selectedCameraType.value = camType
+    selectedCameraBrand.value = camBrand
+
     nextTick(() => {
       setValues({
         name: device.name || '',
@@ -445,12 +807,37 @@ watch(() => [props.device, props.isOpen], ([device, isOpen]) => {
         city: device.city || '',
         eTagNumber: device.eTagNumber || '',
         observingTimeStart: device.observingTimeStart || '',
-        observingTimeEnd: device.observingTimeEnd || ''
+        observingTimeEnd: device.observingTimeEnd || '',
+        // Camera config fields
+        cameraType: camType || undefined,
+        cameraBrand: camBrand || undefined,
+        camRtspUrl: camConfig.RtspUrl || '',
+        camOutputSize: camConfig.OutputSize || '',
+        axisBaseUrl: camConfig.AxisBaseUrl || '',
+        axisUser: camConfig.AxisUser || '',
+        axisPassword: camConfig.AxisPassword || '',
+        axisCamera: camConfig.AxisCamera || undefined,
+        boschBaseUrl: camConfig.BoschBaseUrl || '',
+        boschUser: camConfig.BoschUser || '',
+        boschPassword: camConfig.BoschPassword || '',
+        onvifUrl: camConfig.OnvifUrl || '',
+        onvifUser: camConfig.OnvifUser || '',
+        onvifPassword: camConfig.OnvifPassword || '',
+        ptzHFov: camConfig.PtzHFov || undefined,
+        ptzTarget: camConfig.PtzTarget || '',
+        panPerPixelX: camConfig.PanPerPixelX || undefined,
+        panPerPixelY: camConfig.PanPerPixelY || undefined,
+        panOffset: camConfig.PanOffset || undefined,
+        tiltPerPixelX: camConfig.TiltPerPixelX || undefined,
+        tiltPerPixelY: camConfig.TiltPerPixelY || undefined,
+        tiltOffset: camConfig.TiltOffset || undefined
       })
     })
   } else if (!isOpen) {
     // Reset error state when modal closes
     submitError.value = ''
+    selectedCameraType.value = ''
+    selectedCameraBrand.value = ''
   }
 }, { immediate: true })
 
@@ -494,6 +881,9 @@ const onSubmit = handleSubmit(async (values) => {
     } else if (values.type === 'highResolution') {
       request.videoUrl = values.videoUrl || ''
     }
+
+    // 攝影機設定（所有類型共用）
+    request.cameraConfig = buildCameraConfigJson(values)
 
     await DeviceService.updateDevice(props.device.id || 0, request)
 
