@@ -528,15 +528,21 @@ namespace northguan_nsa_vue_app.Server.Services
                             crowdDevice.Name = request.Name;
                             crowdDevice.Lng = request.Lng;
                             crowdDevice.Lat = request.Lat;
-                            // Only update Serial if it's different and no records exist
                             if (crowdDevice.Serial != request.Serial)
                             {
-                                var hasRecords = await _context.CrowdRecords.AnyAsync(r => r.DeviceSerial == crowdDevice.Serial);
-                                if (hasRecords)
-                                {
-                                    throw new InvalidOperationException("無法修改已有記錄資料的裝置序號");
-                                }
-                                crowdDevice.Serial = request.Serial;
+                                // Serial 是 principal key，需要先更新關聯紀錄再改 Serial
+                                var oldSerial = crowdDevice.Serial;
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE CrowdRecords SET DeviceSerial = {0} WHERE DeviceSerial = {1}",
+                                    request.Serial, oldSerial);
+                                // 先 SaveChanges 清除 EF 追蹤狀態
+                                await _context.SaveChangesAsync();
+                                // 用原生 SQL 更新 Serial（繞過 EF alternate key 限制）
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE CrowdDevices SET Serial = {0} WHERE Id = {1}",
+                                    request.Serial, id);
+                                // 重新載入 entity
+                                await _context.Entry(crowdDevice).ReloadAsync();
                             }
                             crowdDevice.Area = request.Area ?? 0;
                             crowdDevice.ApiUrl = request.ApiUrl;
@@ -551,15 +557,17 @@ namespace northguan_nsa_vue_app.Server.Services
                             parkingDevice.Name = request.Name;
                             parkingDevice.Lng = request.Lng;
                             parkingDevice.Lat = request.Lat;
-                            // Only update Serial if it's different and no records exist
                             if (parkingDevice.Serial != request.Serial)
                             {
-                                var hasRecords = await _context.ParkingRecords.AnyAsync(r => r.DeviceSerial == parkingDevice.Serial);
-                                if (hasRecords)
-                                {
-                                    throw new InvalidOperationException("無法修改已有記錄資料的裝置序號");
-                                }
-                                parkingDevice.Serial = request.Serial;
+                                var oldSerial = parkingDevice.Serial;
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE ParkingRecords SET DeviceSerial = {0} WHERE DeviceSerial = {1}",
+                                    request.Serial, oldSerial);
+                                await _context.SaveChangesAsync();
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE ParkingDevices SET Serial = {0} WHERE Id = {1}",
+                                    request.Serial, id);
+                                await _context.Entry(parkingDevice).ReloadAsync();
                             }
                             parkingDevice.ApiUrl = request.ApiUrl;
                             parkingDevice.NumberOfParking = request.NumberOfParking ?? 0;
@@ -573,15 +581,17 @@ namespace northguan_nsa_vue_app.Server.Services
                             trafficDevice.Name = request.Name;
                             trafficDevice.Lng = request.Lng;
                             trafficDevice.Lat = request.Lat;
-                            // Only update Serial if it's different and no records exist
                             if (trafficDevice.Serial != request.Serial)
                             {
-                                var hasRecords = await _context.TrafficRecords.AnyAsync(r => r.DeviceSerial == trafficDevice.Serial);
-                                if (hasRecords)
-                                {
-                                    throw new InvalidOperationException("無法修改已有記錄資料的裝置序號");
-                                }
-                                trafficDevice.Serial = request.Serial;
+                                var oldSerial = trafficDevice.Serial;
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE TrafficRecords SET DeviceSerial = {0} WHERE DeviceSerial = {1}",
+                                    request.Serial, oldSerial);
+                                await _context.SaveChangesAsync();
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE TrafficDevices SET Serial = {0} WHERE Id = {1}",
+                                    request.Serial, id);
+                                await _context.Entry(trafficDevice).ReloadAsync();
                             }
                             trafficDevice.SpeedLimit = request.SpeedLimit ?? 0;
                             trafficDevice.City = request.City;
@@ -596,15 +606,17 @@ namespace northguan_nsa_vue_app.Server.Services
                             fenceDevice.Name = request.Name;
                             fenceDevice.Lng = request.Lng;
                             fenceDevice.Lat = request.Lat;
-                            // Only update Serial if it's different and no records exist
                             if (fenceDevice.Serial != request.Serial)
                             {
-                                var hasRecords = await _context.FenceRecords.AnyAsync(r => r.DeviceSerial == fenceDevice.Serial);
-                                if (hasRecords)
-                                {
-                                    throw new InvalidOperationException("無法修改已有記錄資料的裝置序號");
-                                }
-                                fenceDevice.Serial = request.Serial;
+                                var oldSerial = fenceDevice.Serial;
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE FenceRecords SET DeviceSerial = {0} WHERE DeviceSerial = {1}",
+                                    request.Serial, oldSerial);
+                                await _context.SaveChangesAsync();
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE FenceDevices SET Serial = {0} WHERE Id = {1}",
+                                    request.Serial, id);
+                                await _context.Entry(fenceDevice).ReloadAsync();
                             }
                             fenceDevice.ObservingTimeStart = request.ObservingTimeStart;
                             fenceDevice.ObservingTimeEnd = request.ObservingTimeEnd;
@@ -619,15 +631,17 @@ namespace northguan_nsa_vue_app.Server.Services
                             hrDevice.Name = request.Name;
                             hrDevice.Lng = request.Lng;
                             hrDevice.Lat = request.Lat;
-                            // Only update Serial if it's different and no records exist
                             if (hrDevice.Serial != request.Serial)
                             {
-                                var hasRecords = await _context.HighResolutionRecords.AnyAsync(r => r.DeviceSerial == hrDevice.Serial);
-                                if (hasRecords)
-                                {
-                                    throw new InvalidOperationException("無法修改已有記錄資料的裝置序號");
-                                }
-                                hrDevice.Serial = request.Serial;
+                                var oldSerial = hrDevice.Serial;
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE HighResolutionRecords SET DeviceSerial = {0} WHERE DeviceSerial = {1}",
+                                    request.Serial, oldSerial);
+                                await _context.SaveChangesAsync();
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE HighResolutionDevices SET Serial = {0} WHERE Id = {1}",
+                                    request.Serial, id);
+                                await _context.Entry(hrDevice).ReloadAsync();
                             }
                             hrDevice.VideoUrl = request.VideoUrl;
                             hrDevice.CameraConfig = request.CameraConfig;
