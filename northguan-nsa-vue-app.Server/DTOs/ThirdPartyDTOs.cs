@@ -258,29 +258,4 @@ namespace northguan_nsa_vue_app.Server.DTOs
         [JsonPropertyName("count")]
         public int Count { get; set; }
     }
-
-    // ── RtspToHttp 外部告警 DTOs ──
-
-    /// <summary>
-    /// POST /api/external-alert/report 請求
-    /// </summary>
-    public class ExternalAlertDto
-    {
-        public string Source { get; set; } = "";
-        public string AlertType { get; set; } = "";
-        public string Status { get; set; } = "";
-        public string Camera { get; set; } = "";
-        public string Message { get; set; } = "";
-        public string? Snapshot { get; set; }
-        public string Timestamp { get; set; } = "";
-    }
-
-    /// <summary>
-    /// POST /api/external-alert/report 回應
-    /// </summary>
-    public class ExternalAlertResponse
-    {
-        [JsonPropertyName("message")]
-        public string Message { get; set; } = "ok";
-    }
 }
