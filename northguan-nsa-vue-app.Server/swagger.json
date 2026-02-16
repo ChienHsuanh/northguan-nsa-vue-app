@@ -1172,6 +1172,58 @@
         }
       }
     },
+    "/api/external-alert/report": {
+      "post": {
+        "tags": [
+          "ExternalAlert"
+        ],
+        "operationId": "ExternalAlert_Report",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExternalAlertDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExternalAlertResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "驗證失敗或請求格式錯誤",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "系統內部錯誤",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Health": {
       "get": {
         "tags": [
@@ -5999,6 +6051,43 @@
             "type": "string"
           },
           "stationName": {
+            "type": "string"
+          }
+        }
+      },
+      "ExternalAlertResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ExternalAlertDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "alertType": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "camera": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "snapshot": {
+            "type": "string",
+            "nullable": true
+          },
+          "timestamp": {
             "type": "string"
           }
         }

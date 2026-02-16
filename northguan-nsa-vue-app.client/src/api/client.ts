@@ -1413,6 +1413,91 @@ export class DeviceClient implements IDeviceClient {
     }
 }
 
+export interface IExternalAlertClient {
+    report(dto: ExternalAlertDto,  cancelToken?: CancelToken): Promise<ExternalAlertResponse>;
+}
+
+export class ExternalAlertClient implements IExternalAlertClient {
+    protected instance: AxiosInstance;
+    protected baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, instance?: AxiosInstance) {
+
+        this.instance = instance || axios.create();
+
+        this.baseUrl = baseUrl ?? "https://localhost:7289";
+
+    }
+
+    report(dto: ExternalAlertDto, cancelToken?: CancelToken): Promise<ExternalAlertResponse> {
+        let url_ = this.baseUrl + "/api/external-alert/report";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(dto);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "POST",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processReport(_response);
+        });
+    }
+
+    protected processReport(response: AxiosResponse): Promise<ExternalAlertResponse> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        let _mappings: { source: any, target: any }[] = [];
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = ExternalAlertResponse.fromJS(resultData200, _mappings);
+            return Promise.resolve<ExternalAlertResponse>(result200);
+
+        } else if (status === 400) {
+            const _responseText = response.data;
+            let result400: any = null;
+            let resultData400  = _responseText;
+            result400 = ApiErrorResponse.fromJS(resultData400, _mappings);
+            return throwException("\u9a57\u8b49\u5931\u6557\u6216\u8acb\u6c42\u683c\u5f0f\u932f\u8aa4", status, _responseText, _headers, result400);
+
+        } else if (status === 500) {
+            const _responseText = response.data;
+            let result500: any = null;
+            let resultData500  = _responseText;
+            result500 = ApiErrorResponse.fromJS(resultData500, _mappings);
+            return throwException("\u7cfb\u7d71\u5167\u90e8\u932f\u8aa4", status, _responseText, _headers, result500);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<ExternalAlertResponse>(null as any);
+    }
+}
+
 export interface IHealthClient {
     get( cancelToken?: CancelToken): Promise<FileResponse>;
     getDetailed( cancelToken?: CancelToken): Promise<FileResponse>;
@@ -7138,6 +7223,98 @@ export interface IDeviceStatusLogResponse {
     time?: string;
     deviceName?: string;
     stationName?: string;
+}
+
+export class ExternalAlertResponse implements IExternalAlertResponse {
+    message?: string;
+
+    constructor(data?: IExternalAlertResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any, _mappings?: any) {
+        if (_data) {
+            this.message = _data["message"] !== undefined ? _data["message"] : null as any;
+        }
+    }
+
+    static fromJS(data: any, _mappings?: any): ExternalAlertResponse | null {
+        data = typeof data === 'object' ? data : {};
+        return createInstance<ExternalAlertResponse>(data, _mappings, ExternalAlertResponse);
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message !== undefined ? this.message : null as any;
+        return data;
+    }
+}
+
+export interface IExternalAlertResponse {
+    message?: string;
+}
+
+export class ExternalAlertDto implements IExternalAlertDto {
+    source?: string;
+    alertType?: string;
+    status?: string;
+    camera?: string;
+    message?: string;
+    snapshot?: string | null;
+    timestamp?: string;
+
+    constructor(data?: IExternalAlertDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any, _mappings?: any) {
+        if (_data) {
+            this.source = _data["source"] !== undefined ? _data["source"] : null as any;
+            this.alertType = _data["alertType"] !== undefined ? _data["alertType"] : null as any;
+            this.status = _data["status"] !== undefined ? _data["status"] : null as any;
+            this.camera = _data["camera"] !== undefined ? _data["camera"] : null as any;
+            this.message = _data["message"] !== undefined ? _data["message"] : null as any;
+            this.snapshot = _data["snapshot"] !== undefined ? _data["snapshot"] : null as any;
+            this.timestamp = _data["timestamp"] !== undefined ? _data["timestamp"] : null as any;
+        }
+    }
+
+    static fromJS(data: any, _mappings?: any): ExternalAlertDto | null {
+        data = typeof data === 'object' ? data : {};
+        return createInstance<ExternalAlertDto>(data, _mappings, ExternalAlertDto);
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["source"] = this.source !== undefined ? this.source : null as any;
+        data["alertType"] = this.alertType !== undefined ? this.alertType : null as any;
+        data["status"] = this.status !== undefined ? this.status : null as any;
+        data["camera"] = this.camera !== undefined ? this.camera : null as any;
+        data["message"] = this.message !== undefined ? this.message : null as any;
+        data["snapshot"] = this.snapshot !== undefined ? this.snapshot : null as any;
+        data["timestamp"] = this.timestamp !== undefined ? this.timestamp : null as any;
+        return data;
+    }
+}
+
+export interface IExternalAlertDto {
+    source?: string;
+    alertType?: string;
+    status?: string;
+    camera?: string;
+    message?: string;
+    snapshot?: string | null;
+    timestamp?: string;
 }
 
 export class LandmarksResponse implements ILandmarksResponse {
