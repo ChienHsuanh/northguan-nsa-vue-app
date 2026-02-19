@@ -42,6 +42,7 @@
               <SelectItem value="traffic">車流</SelectItem>
               <SelectItem value="fence">電子圍籬</SelectItem>
               <SelectItem value="highResolution">4K影像</SelectItem>
+              <SelectItem value="water">水域監控</SelectItem>
             </SelectContent>
           </Select>
         </div>

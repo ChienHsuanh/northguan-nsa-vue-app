@@ -59,6 +59,18 @@ export const DEVICE_COLORS = {
     textClass: 'text-slate-600',
     textLightClass: 'text-slate-500',
     border: 'border-slate-600'
+  },
+  water: {
+    primary: '#0891B2',      // cyan-600
+    primaryDark: '#0E7490',  // cyan-700
+    light: '#ECFEFF',        // cyan-50 background
+    text: '#0891B2',         // cyan-600 text
+    textLight: '#06B6D4',    // cyan-500 text
+    bg: 'bg-cyan-600',
+    bgLight: 'bg-cyan-50',
+    textClass: 'text-cyan-600',
+    textLightClass: 'text-cyan-500',
+    border: 'border-cyan-600'
   }
 } as const
 
@@ -81,5 +93,6 @@ export const DEVICE_TYPE_MAP = {
   'traffic': 'traffic', 
   'crowd': 'crowd',
   'fence': 'fence',
-  'highResolution': 'highResolution'
+  'highResolution': 'highResolution',
+  'water': 'water'
 } as const

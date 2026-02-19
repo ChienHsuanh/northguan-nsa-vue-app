@@ -206,7 +206,8 @@ const deviceTypes = [
   { type: 'parking', name: '停車場監控', icon: CarIcon, iconBg: 'bg-green-100', iconColor: 'text-green-600' },
   { type: 'traffic', name: '車流監控', icon: CarIcon, iconBg: 'bg-yellow-100', iconColor: 'text-yellow-600' },
   { type: 'fence', name: '圍籬監控', icon: ShieldIcon, iconBg: 'bg-red-100', iconColor: 'text-red-600' },
-  { type: 'highResolution', name: '4K高解析度', icon: MonitorIcon, iconBg: 'bg-purple-100', iconColor: 'text-purple-600' }
+  { type: 'highResolution', name: '4K高解析度', icon: MonitorIcon, iconBg: 'bg-purple-100', iconColor: 'text-purple-600' },
+  { type: 'water', name: '水域監控', icon: MonitorIcon, iconBg: 'bg-cyan-100', iconColor: 'text-cyan-600' }
 ]
 
 const hasTypeSpecificInfo = computed(() => {

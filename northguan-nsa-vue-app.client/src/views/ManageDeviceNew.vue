@@ -511,6 +511,13 @@ const deviceTypes = [
     icon: MonitorIcon,
     iconBg: 'bg-purple-100',
     iconColor: 'text-purple-600'
+  },
+  {
+    type: 'water',
+    name: '水域監控',
+    icon: MonitorIcon,
+    iconBg: 'bg-cyan-100',
+    iconColor: 'text-cyan-600'
   }
 ]
 
@@ -833,6 +840,9 @@ const getDetailedTypeInfo = (device: DeviceListResponse): string => {
       break
     case 'highResolution':
       if (device.videoUrl) details.push(`<div>4K 串流: <span class="text-blue-600">${device.videoUrl.length > 30 ? device.videoUrl.substring(0, 30) + '...' : device.videoUrl}</span></div>`)
+      break
+    case 'water':
+      if (device.videoUrl) details.push(`<div>水域串流: <span class="text-blue-600">${device.videoUrl.length > 30 ? device.videoUrl.substring(0, 30) + '...' : device.videoUrl}</span></div>`)
       break
   }
 
