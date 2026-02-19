@@ -58,6 +58,7 @@
                     <SelectItem value="traffic">車流</SelectItem>
                     <SelectItem value="fence">電子圍籬</SelectItem>
                     <SelectItem value="highResolution">4K影像</SelectItem>
+                    <SelectItem value="water">水域監控</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -284,6 +285,25 @@
         <!-- 4K影像特定欄位 -->
         <div v-if="selectedType === 'highResolution'" class="space-y-4">
           <h3 class="text-lg font-medium text-gray-900 border-b pb-2">4K影像設定</h3>
+
+          <FormField v-slot="{ componentField }" name="videoUrl">
+            <FormItem>
+              <FormLabel>串流影片URL</FormLabel>
+              <FormControl>
+                <Input
+                  type="url"
+                  placeholder="請輸入串流影片URL"
+                  v-bind="componentField"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+        </div>
+
+        <!-- 水域監控特定欄位 -->
+        <div v-if="selectedType === 'water'" class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-900 border-b pb-2">水域監控設定</h3>
 
           <FormField v-slot="{ componentField }" name="videoUrl">
             <FormItem>
@@ -821,6 +841,8 @@ const onSubmit = handleSubmit(async (values) => {
       request.observingTimeStart = values.observingTimeStart || ''
       request.observingTimeEnd = values.observingTimeEnd || ''
     } else if (values.type === 'highResolution') {
+      request.videoUrl = values.videoUrl || ''
+    } else if (values.type === 'water') {
       request.videoUrl = values.videoUrl || ''
     }
 

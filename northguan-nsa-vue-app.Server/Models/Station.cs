@@ -48,5 +48,6 @@ namespace northguan_nsa_vue_app.Server.Models
         public virtual ICollection<TrafficDevice> TrafficDevices { get; set; } = new List<TrafficDevice>();
         public virtual ICollection<FenceDevice> FenceDevices { get; set; } = new List<FenceDevice>();
         public virtual ICollection<HighResolutionDevice> HighResolutionDevices { get; set; } = new List<HighResolutionDevice>();
+        public virtual ICollection<WaterDevice> WaterDevices { get; set; } = new List<WaterDevice>();
     }
 }

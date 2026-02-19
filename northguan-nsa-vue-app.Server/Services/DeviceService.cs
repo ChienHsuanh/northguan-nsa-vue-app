@@ -29,6 +29,8 @@ namespace northguan_nsa_vue_app.Server.Services
                     return await GetFenceDevicesAsync(keyword, page, size, availableStationIds);
                 case "highresolution":
                     return await GetHighResolutionDevicesAsync(keyword, page, size, availableStationIds);
+                case "water":
+                    return await GetWaterDevicesAsync(keyword, page, size, availableStationIds);
                 default:
                     var devices = new List<DeviceListResponse>();
                     devices.AddRange(await GetCrowdDevicesAsync(keyword, page, size, availableStationIds));
@@ -36,6 +38,7 @@ namespace northguan_nsa_vue_app.Server.Services
                     devices.AddRange(await GetTrafficDevicesAsync(keyword, page, size, availableStationIds));
                     devices.AddRange(await GetFenceDevicesAsync(keyword, page, size, availableStationIds));
                     devices.AddRange(await GetHighResolutionDevicesAsync(keyword, page, size, availableStationIds));
+                    devices.AddRange(await GetWaterDevicesAsync(keyword, page, size, availableStationIds));
                     return devices;
             }
         }
@@ -258,6 +261,48 @@ namespace northguan_nsa_vue_app.Server.Services
                 .ToListAsync();
         }
 
+        private async Task<List<DeviceListResponse>> GetWaterDevicesAsync(string keyword, int? page, int? size, List<int>? availableStationIds)
+        {
+            var query = _context.WaterDevices
+                .Include(d => d.Station)
+                .Where(d => d.Station.DeletedAt == null)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(keyword))
+                query = query.Where(d => d.Name.Contains(keyword));
+
+            if (availableStationIds != null)
+                query = query.Where(d => availableStationIds.Contains(d.StationId));
+
+            var orderedQuery = query.OrderBy(d => d.StationId);
+
+            if (page.HasValue && size.HasValue)
+            {
+                orderedQuery = (IOrderedQueryable<WaterDevice>)orderedQuery
+                    .Skip((page.Value - 1) * size.Value)
+                    .Take(size.Value);
+            }
+
+            return await orderedQuery
+                .Select(d => new DeviceListResponse
+                {
+                    Type = "water",
+                    Id = d.Id,
+                    Name = d.Name,
+                    Lat = d.Lat,
+                    Lng = d.Lng,
+                    StationID = d.StationId,
+                    Serial = d.Serial,
+                    StationName = d.Station.Name,
+                    Status = d.Status,
+                    LatestOnlineTime = d.LatestOnlineTime.HasValue ? d.LatestOnlineTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : null,
+                    UpdatedAt = d.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss"),
+                    VideoUrl = d.VideoUrl,
+                    CameraConfig = d.CameraConfig
+                })
+                .ToListAsync();
+        }
+
         public async Task<int> GetDeviceCountAsync(string type, string keyword, List<int>? availableStationIds)
         {
             switch (type.ToLower())
@@ -291,6 +336,12 @@ namespace northguan_nsa_vue_app.Server.Services
                     if (!string.IsNullOrEmpty(keyword)) hrQuery = hrQuery.Where(d => d.Name.Contains(keyword));
                     if (availableStationIds != null) hrQuery = hrQuery.Where(d => availableStationIds.Contains(d.StationId));
                     return await hrQuery.CountAsync();
+
+                case "water":
+                    var waterQuery = _context.WaterDevices.Include(d => d.Station).Where(d => d.Station.DeletedAt == null);
+                    if (!string.IsNullOrEmpty(keyword)) waterQuery = waterQuery.Where(d => d.Name.Contains(keyword));
+                    if (availableStationIds != null) waterQuery = waterQuery.Where(d => availableStationIds.Contains(d.StationId));
+                    return await waterQuery.CountAsync();
 
                 default:
                     return 0;
@@ -406,7 +457,27 @@ namespace northguan_nsa_vue_app.Server.Services
                 })
                 .FirstOrDefaultAsync();
 
-            return hrDevice;
+            if (hrDevice != null) return hrDevice;
+
+            var waterDevice = await _context.WaterDevices
+                .Include(d => d.Station)
+                .Where(d => d.Station.DeletedAt == null && d.Id == deviceId)
+                .Select(d => new DeviceListResponse
+                {
+                    Type = "water",
+                    Id = d.Id,
+                    Name = d.Name,
+                    Lat = d.Lat,
+                    Lng = d.Lng,
+                    StationID = d.StationId,
+                    Serial = d.Serial,
+                    StationName = d.Station.Name,
+                    VideoUrl = d.VideoUrl,
+                    CameraConfig = d.CameraConfig
+                })
+                .FirstOrDefaultAsync();
+
+            return waterDevice;
         }
 
         public async Task CreateDeviceAsync(CreateDeviceRequest request)
@@ -494,6 +565,20 @@ namespace northguan_nsa_vue_app.Server.Services
                                 CameraConfig = request.CameraConfig
                             };
                             _context.HighResolutionDevices.Add(hrDevice);
+                            break;
+
+                        case "water":
+                            var waterDevice = new WaterDevice
+                            {
+                                StationId = request.StationID,
+                                Name = request.Name,
+                                Lng = request.Lng,
+                                Lat = request.Lat,
+                                Serial = request.Serial,
+                                VideoUrl = request.VideoUrl,
+                                CameraConfig = request.CameraConfig
+                            };
+                            _context.WaterDevices.Add(waterDevice);
                             break;
 
                         default:
@@ -647,6 +732,26 @@ namespace northguan_nsa_vue_app.Server.Services
                             hrDevice.CameraConfig = request.CameraConfig;
                             break;
 
+                        case "water":
+                            var waterDevice = await _context.WaterDevices.FindAsync(id);
+                            if (waterDevice == null) throw new KeyNotFoundException("找不到指定的水域監控裝置");
+
+                            waterDevice.Name = request.Name;
+                            waterDevice.Lng = request.Lng;
+                            waterDevice.Lat = request.Lat;
+                            if (waterDevice.Serial != request.Serial)
+                            {
+                                var oldSerial = waterDevice.Serial;
+                                await _context.SaveChangesAsync();
+                                await _context.Database.ExecuteSqlRawAsync(
+                                    "UPDATE WaterDevices SET Serial = {0} WHERE Id = {1}",
+                                    request.Serial, id);
+                                await _context.Entry(waterDevice).ReloadAsync();
+                            }
+                            waterDevice.VideoUrl = request.VideoUrl;
+                            waterDevice.CameraConfig = request.CameraConfig;
+                            break;
+
                         default:
                             throw new ArgumentException($"不支援的裝置類型: {request.Type}");
                     }
@@ -722,6 +827,14 @@ namespace northguan_nsa_vue_app.Server.Services
                             }
                             break;
 
+                        case "water":
+                            var waterDevice = await _context.WaterDevices.FindAsync(id);
+                            if (waterDevice != null)
+                            {
+                                _context.WaterDevices.Remove(waterDevice);
+                            }
+                            break;
+
                         default:
                             throw new ArgumentException($"不支援的裝置類型: {type}");
                     }
@@ -774,6 +887,13 @@ namespace northguan_nsa_vue_app.Server.Services
         public async Task<List<HighResolutionDevice>> GetHighResolutionDevicesByStationIdsAsync(List<int> stationIds)
         {
             return await _context.HighResolutionDevices
+                .Where(d => stationIds.Contains(d.StationId))
+                .ToListAsync();
+        }
+
+        public async Task<List<WaterDevice>> GetWaterDevicesByStationIdsAsync(List<int> stationIds)
+        {
+            return await _context.WaterDevices
                 .Where(d => stationIds.Contains(d.StationId))
                 .ToListAsync();
         }
@@ -880,6 +1000,25 @@ namespace northguan_nsa_vue_app.Server.Services
 
             devices.AddRange(hrDevices);
 
+            // Add water devices
+            var waterDevices = await _context.WaterDevices
+                .Include(d => d.Station)
+                .Where(d => availableStationIds.Contains(d.StationId) &&
+                           (string.IsNullOrEmpty(keyword) || d.Name.Contains(keyword)))
+                .Select(d => new DeviceStatusResponse
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    Serial = d.Serial,
+                    Status = d.Status ?? "unknown",
+                    LatestOnlineTime = d.LatestOnlineTime.HasValue ? d.LatestOnlineTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : null,
+                    StationName = d.Station.Name,
+                    Type = "water"
+                })
+                .ToListAsync();
+
+            devices.AddRange(waterDevices);
+
             if (page.HasValue && size.HasValue)
             {
                 return devices
@@ -898,8 +1037,9 @@ namespace northguan_nsa_vue_app.Server.Services
             var trafficCount = await _context.TrafficDevices.Where(d => availableStationIds.Contains(d.StationId)).CountAsync();
             var fenceCount = await _context.FenceDevices.Where(d => availableStationIds.Contains(d.StationId)).CountAsync();
             var hrCount = await _context.HighResolutionDevices.Where(d => availableStationIds.Contains(d.StationId)).CountAsync();
+            var waterCount = await _context.WaterDevices.Where(d => availableStationIds.Contains(d.StationId)).CountAsync();
 
-            return crowdCount + parkingCount + trafficCount + fenceCount + hrCount;
+            return crowdCount + parkingCount + trafficCount + fenceCount + hrCount + waterCount;
         }
 
         public async Task<List<DeviceStatusLogResponse>> GetDeviceStatusLogsAsync(int page, int size, string keyword, List<int> availableStationIds)

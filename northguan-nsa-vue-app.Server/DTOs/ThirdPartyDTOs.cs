@@ -236,6 +236,41 @@ namespace northguan_nsa_vue_app.Server.DTOs
     }
 
     /// <summary>
+    /// GET /api/devices/all-config 回傳的統一設備設定
+    /// </summary>
+    public class UnifiedDeviceConfigDto
+    {
+        [JsonPropertyName("serial")]
+        public required string Serial { get; set; }
+
+        [JsonPropertyName("name")]
+        public required string Name { get; set; }
+
+        [JsonPropertyName("device_type")]
+        public required string DeviceType { get; set; } // "fence"|"crowd"|"highresolution"|"water"
+
+        [JsonPropertyName("video_url")]
+        public string? VideoUrl { get; set; }
+
+        [JsonPropertyName("camera_config")]
+        public object? CameraConfig { get; set; }
+
+        // Fence 專用（其他類型為 null）
+        [JsonPropertyName("observing_time_start")]
+        public string? ObservingTimeStart { get; set; }
+
+        [JsonPropertyName("observing_time_end")]
+        public string? ObservingTimeEnd { get; set; }
+
+        [JsonPropertyName("zones")]
+        public List<FenceZoneDto>? Zones { get; set; }
+
+        // Crowd 專用
+        [JsonPropertyName("area")]
+        public int? Area { get; set; }
+    }
+
+    /// <summary>
     /// POST /api/geofence/zones 請求
     /// </summary>
     public class UpdateFenceZonesRequest

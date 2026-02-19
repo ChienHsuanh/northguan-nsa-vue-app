@@ -576,6 +576,122 @@ namespace northguan_nsa_vue_app.Server.Services
             }).ToList();
         }
 
+        public async Task<List<UnifiedDeviceConfigDto>> GetAllDeviceConfigsAsync()
+        {
+            var result = new List<UnifiedDeviceConfigDto>();
+
+            // 1. Fence devices
+            var fenceDevices = await _context.FenceDevices
+                .Include(d => d.Station)
+                .Where(d => d.DeletedAt == null && d.Station.DeletedAt == null)
+                .ToListAsync();
+
+            foreach (var d in fenceDevices)
+            {
+                var dto = new UnifiedDeviceConfigDto
+                {
+                    Serial = d.Serial,
+                    Name = d.Name,
+                    DeviceType = "fence",
+                    VideoUrl = d.VideoUrl,
+                    ObservingTimeStart = d.ObservingTimeStart,
+                    ObservingTimeEnd = d.ObservingTimeEnd
+                };
+
+                if (!string.IsNullOrEmpty(d.Zones))
+                {
+                    try { dto.Zones = JsonSerializer.Deserialize<List<FenceZoneDto>>(d.Zones); }
+                    catch { dto.Zones = null; }
+                }
+
+                if (!string.IsNullOrEmpty(d.CameraConfig))
+                {
+                    try { dto.CameraConfig = JsonSerializer.Deserialize<JsonElement>(d.CameraConfig); }
+                    catch { dto.CameraConfig = null; }
+                }
+
+                result.Add(dto);
+            }
+
+            // 2. Crowd devices
+            var crowdDevices = await _context.CrowdDevices
+                .Include(d => d.Station)
+                .Where(d => d.DeletedAt == null && d.Station.DeletedAt == null)
+                .ToListAsync();
+
+            foreach (var d in crowdDevices)
+            {
+                var dto = new UnifiedDeviceConfigDto
+                {
+                    Serial = d.Serial,
+                    Name = d.Name,
+                    DeviceType = "crowd",
+                    VideoUrl = d.VideoUrl,
+                    Area = d.Area
+                };
+
+                if (!string.IsNullOrEmpty(d.CameraConfig))
+                {
+                    try { dto.CameraConfig = JsonSerializer.Deserialize<JsonElement>(d.CameraConfig); }
+                    catch { dto.CameraConfig = null; }
+                }
+
+                result.Add(dto);
+            }
+
+            // 3. HighResolution devices
+            var hrDevices = await _context.HighResolutionDevices
+                .Include(d => d.Station)
+                .Where(d => d.DeletedAt == null && d.Station.DeletedAt == null)
+                .ToListAsync();
+
+            foreach (var d in hrDevices)
+            {
+                var dto = new UnifiedDeviceConfigDto
+                {
+                    Serial = d.Serial,
+                    Name = d.Name,
+                    DeviceType = "highresolution",
+                    VideoUrl = d.VideoUrl
+                };
+
+                if (!string.IsNullOrEmpty(d.CameraConfig))
+                {
+                    try { dto.CameraConfig = JsonSerializer.Deserialize<JsonElement>(d.CameraConfig); }
+                    catch { dto.CameraConfig = null; }
+                }
+
+                result.Add(dto);
+            }
+
+            // 4. Water devices
+            var waterDevices = await _context.WaterDevices
+                .Include(d => d.Station)
+                .Where(d => d.DeletedAt == null && d.Station.DeletedAt == null)
+                .ToListAsync();
+
+            foreach (var d in waterDevices)
+            {
+                var dto = new UnifiedDeviceConfigDto
+                {
+                    Serial = d.Serial,
+                    Name = d.Name,
+                    DeviceType = "water",
+                    VideoUrl = d.VideoUrl
+                };
+
+                if (!string.IsNullOrEmpty(d.CameraConfig))
+                {
+                    try { dto.CameraConfig = JsonSerializer.Deserialize<JsonElement>(d.CameraConfig); }
+                    catch { dto.CameraConfig = null; }
+                }
+
+                result.Add(dto);
+            }
+
+            return result;
+        }
+
         public async Task<UpdateFenceZonesResponse> UpdateFenceZonesAsync(UpdateFenceZonesRequest request)
         {
             var device = await _context.FenceDevices

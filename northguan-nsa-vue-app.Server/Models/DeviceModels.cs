@@ -145,4 +145,15 @@ namespace northguan_nsa_vue_app.Server.Models
         public string? VideoUrl { get; set; }
     }
 
+    /// <summary>
+    /// 水域監控設備
+    /// </summary>
+    [Table("WaterDevices")]
+    public class WaterDevice : BaseDevice
+    {
+        [StringLength(1000)]
+        [Column(TypeName = "varchar(1000)")]
+        public string? VideoUrl { get; set; }
+    }
+
 }

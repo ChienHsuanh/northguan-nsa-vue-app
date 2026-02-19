@@ -61,8 +61,12 @@ namespace northguan_nsa_vue_app.Server.Attributes
                         return new ValidationResult("高解析度設備的影片網址為必填", new[] { "VideoUrl" });
                     }
                     break;
+
+                case "water":
+                    // 水域監控無特殊必填驗證
+                    break;
             }
-            
+
             return ValidationResult.Success;
         }
 

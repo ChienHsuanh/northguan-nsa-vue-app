@@ -96,6 +96,16 @@ namespace northguan_nsa_vue_app.Server.Controllers
         }
 
         /// <summary>
+        /// RtspToHttp 拉取所有設備設定（統一端點）
+        /// </summary>
+        [HttpGet("devices/all-config")]
+        public async Task<ActionResult<List<UnifiedDeviceConfigDto>>> GetAllDeviceConfigs()
+        {
+            var configs = await _thirdPartyService.GetAllDeviceConfigsAsync();
+            return Ok(configs);
+        }
+
+        /// <summary>
         /// RtspToHttp viewer 存圍籬多邊形到 DB
         /// </summary>
         [HttpPost("geofence/zones")]

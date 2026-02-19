@@ -61,6 +61,7 @@ namespace northguan_nsa_vue_app.Server.Services
         Task<List<TrafficDevice>> GetTrafficDevicesByStationIdsAsync(List<int> stationIds);
         Task<List<FenceDevice>> GetFenceDevicesByStationIdsAsync(List<int> stationIds);
         Task<List<HighResolutionDevice>> GetHighResolutionDevicesByStationIdsAsync(List<int> stationIds);
+        Task<List<WaterDevice>> GetWaterDevicesByStationIdsAsync(List<int> stationIds);
     }
 
     public interface IFileService
@@ -166,5 +167,6 @@ namespace northguan_nsa_vue_app.Server.Services
         Task<byte[]> CreateZeroTouchExcelAsync();
         Task<List<FenceDeviceConfigDto>> GetFenceDeviceConfigsAsync();
         Task<UpdateFenceZonesResponse> UpdateFenceZonesAsync(UpdateFenceZonesRequest request);
+        Task<List<UnifiedDeviceConfigDto>> GetAllDeviceConfigsAsync();
     }
 }

@@ -30,6 +30,7 @@ namespace northguan_nsa_vue_app.Server.Data
         public DbSet<TrafficDevice> TrafficDevices { get; set; }
         public DbSet<FenceDevice> FenceDevices { get; set; }
         public DbSet<HighResolutionDevice> HighResolutionDevices { get; set; }
+        public DbSet<WaterDevice> WaterDevices { get; set; }
 
         // Record entities
         public DbSet<ParkingRecord> ParkingRecords { get; set; }
@@ -84,6 +85,12 @@ namespace northguan_nsa_vue_app.Server.Data
             modelBuilder.Entity<HighResolutionDevice>()
                 .HasOne(d => d.Station)
                 .WithMany(s => s.HighResolutionDevices)
+                .HasForeignKey(d => d.StationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<WaterDevice>()
+                .HasOne(d => d.Station)
+                .WithMany(s => s.WaterDevices)
                 .HasForeignKey(d => d.StationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -243,7 +250,7 @@ namespace northguan_nsa_vue_app.Server.Data
                 .HasPrecision(11, 8);
 
             // Apply same precision to all device lat/lng
-            foreach (var deviceType in new[] { typeof(CrowdDevice), typeof(ParkingDevice), typeof(TrafficDevice), typeof(FenceDevice), typeof(HighResolutionDevice) })
+            foreach (var deviceType in new[] { typeof(CrowdDevice), typeof(ParkingDevice), typeof(TrafficDevice), typeof(FenceDevice), typeof(HighResolutionDevice), typeof(WaterDevice) })
             {
                 modelBuilder.Entity(deviceType)
                     .Property("Lat")
@@ -401,6 +408,14 @@ namespace northguan_nsa_vue_app.Server.Data
             modelBuilder.Entity<HighResolutionDevice>()
                 .HasIndex(d => new { d.Name, d.Serial })
                 .HasDatabaseName("IX_HighResolutionDevices_Name_Serial_Composite");
+
+            modelBuilder.Entity<WaterDevice>()
+                .HasIndex(d => new { d.StationId, d.DeletedAt })
+                .HasDatabaseName("IX_WaterDevices_StationId_DeletedAt_Composite");
+
+            modelBuilder.Entity<WaterDevice>()
+                .HasIndex(d => new { d.Name, d.Serial })
+                .HasDatabaseName("IX_WaterDevices_Name_Serial_Composite");
 
             // 6. Stations 表索引優化
             modelBuilder.Entity<Station>()
